@@ -2,6 +2,7 @@ package xtcp
 
 import (
 	"bytes"
+	"crypto/tls"
 	"errors"
 	"io"
 	"net"
@@ -157,7 +158,13 @@ func (c *Conn) IsStoped() bool {
 }
 
 func (c *Conn) serve() {
-	tcpConn := c.RawConn.(*net.TCPConn)
+	var tcpConn *net.TCPConn
+	switch cv := c.RawConn.(type) {
+	case *net.TCPConn:
+		tcpConn = cv
+	case *tls.Conn:
+		tcpConn = cv.NetConn().(*net.TCPConn)
+	}
 	tcpConn.SetNoDelay(c.Opts.NoDelay)
 	tcpConn.SetKeepAlive(c.Opts.KeepAlive)
 	if c.Opts.KeepAlivePeriod != 0 {
