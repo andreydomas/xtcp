@@ -368,11 +368,14 @@ func (c *Conn) DialAndServe(addr string) error {
 		return err
 	}
 
-	c.RawConn = rawConn
-
-	c.Opts.Handler.OnConnect(c)
-
-	c.serve()
+	c.Enroll(rawConn)
 
 	return nil
+}
+
+// Enroll serve with exist connection
+func (c *Conn) Enroll(rawConn net.Conn) {
+	c.RawConn = rawConn
+	c.Opts.Handler.OnConnect(c)
+	c.serve()
 }
